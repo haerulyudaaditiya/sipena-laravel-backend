@@ -3,12 +3,18 @@
 namespace App\Exports;
 
 use App\Models\Salary;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting; // DITAMBAHKAN
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;     // DITAMBAHKAN
+use Maatwebsite\Excel\Events\AfterSheet;   // 2. Import event AfterSheet
 
-class SalaryReport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize
+
+class SalaryReport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithColumnFormatting, WithEvents 
 {
     protected $month;
     protected $year;
@@ -32,6 +38,16 @@ class SalaryReport implements FromCollection, WithHeadings, WithMapping, ShouldA
         return ["NIK", "Nama Karyawan", "Gaji Pokok", "Tunjangan", "Bonus", "Total Penerimaan", "Potongan", "Gaji Bersih"];
     }
 
+    /**
+     * DITAMBAHKAN: Memaksa kolom NIK (kolom A) menjadi format Teks.
+     */
+    public function columnFormats(): array
+    {
+        return [
+            'A' => NumberFormat::FORMAT_TEXT,
+        ];
+    }
+
     public function map($salary): array
     {
         $totalPenerimaan = $salary->basic_salary + $salary->allowances + $salary->bonus;
@@ -46,6 +62,25 @@ class SalaryReport implements FromCollection, WithHeadings, WithMapping, ShouldA
             $totalPenerimaan,
             $salary->deductions,
             $gajiBersih,
+        ];
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                // 1. Mengatur orientasi halaman menjadi Landscape
+                $event->sheet->getDelegate()->getPageSetup()->setOrientation(PageSetup::ORIENTATION_LANDSCAPE);
+
+                // 2. DITAMBAHKAN: Mengatur ukuran kertas menjadi lebih lebar (misal: A3 atau Legal)
+                // Ini akan memberikan lebih banyak ruang horizontal.
+                $event->sheet->getDelegate()->getPageSetup()->setPaperSize(PageSetup::PAPERSIZE_LEGAL);
+
+                // 3. DIUBAHKAN: Memastikan setFitToWidth diaktifkan
+                // Ini akan memaksa semua kolom agar muat dalam satu halaman lebar.
+                $event->sheet->getDelegate()->getPageSetup()->setFitToWidth(1);
+                $event->sheet->getDelegate()->getPageSetup()->setFitToHeight(0);
+            },
         ];
     }
 }
