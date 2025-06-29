@@ -183,22 +183,30 @@
 
                             {{-- DITAMBAHKAN: Preview Foto --}}
                             <div class="row">
+                                {{-- DIUBAH: Preview Foto Check-in --}}
                                 <div class="col-md-6 text-center">
-                                    <label>Foto Check-in</label>
-                                    @if ($attendance->check_in_photo_url)
-                                        <img src="{{ $attendance->check_in_photo_url }}" class="img-fluid rounded mb-2"
-                                            alt="Check-in Photo">
+                                    <label>Foto Masuk</label>
+                                    @if($attendance->check_in_photo_url)
+                                        <a href="{{ $attendance->check_in_photo_url }}" target="_blank" title="Lihat ukuran penuh">
+                                            <img src="{{ $attendance->check_in_photo_url }}" alt="Foto Check-in" style="width: 100%; height: 200px; object-fit: cover; border-radius: 5px; border: 1px solid #ddd;">
+                                        </a>
                                     @else
-                                        <p class="text-muted">Tidak ada foto</p>
+                                        <div class="d-flex align-items-center justify-content-center bg-light" style="width: 100%; height: 200px; border-radius: 5px;">
+                                            <span class="text-muted">Tidak ada foto</span>
+                                        </div>
                                     @endif
                                 </div>
+                                {{-- DIUBAH: Preview Foto Check-out --}}
                                 <div class="col-md-6 text-center">
-                                    <label>Foto Check-out</label>
-                                    @if ($attendance->check_out_photo_url)
-                                        <img src="{{ $attendance->check_out_photo_url }}" class="img-fluid rounded mb-2"
-                                            alt="Check-out Photo">
+                                    <label>Foto Keluar</label>
+                                     @if($attendance->check_out_photo_url)
+                                        <a href="{{ $attendance->check_out_photo_url }}" target="_blank" title="Lihat ukuran penuh">
+                                            <img src="{{ $attendance->check_out_photo_url }}" alt="Foto Check-out" style="width: 100%; height: 200px; object-fit: cover; border-radius: 5px; border: 1px solid #ddd;">
+                                        </a>
                                     @else
-                                        <p class="text-muted">Tidak ada foto</p>
+                                        <div class="d-flex align-items-center justify-content-center bg-light" style="width: 100%; height: 200px; border-radius: 5px;">
+                                            <span class="text-muted">Belum ada foto</span>
+                                        </div>
                                     @endif
                                 </div>
                             </div>
