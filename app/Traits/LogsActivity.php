@@ -6,81 +6,90 @@ use App\Models\ActivityLog;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Trait untuk secara otomatis mencatat aktivitas (Create, Update, Delete) pada sebuah model.
+ * Log yang dihasilkan lebih simpel dan fokus pada tindakan utama.
+ * Versi ini lebih fleksibel dan bisa disesuaikan per model.
+ */
 trait LogsActivity
 {
     /**
-     * Boot the trait.
+     * Boot the trait untuk mengaitkan event Eloquent.
      */
     protected static function bootLogsActivity()
     {
         // Event untuk data BARU DIBUAT
         static::created(function (Model $model) {
-            self::logActivity($model, 'dibuat');
+            static::logActivity($model, 'membuat');
         });
 
         // Event untuk data DIHAPUS
         static::deleted(function (Model $model) {
-            self::logActivity($model, 'dihapus');
+            static::logActivity($model, 'menghapus');
         });
 
-        // DIUBAH: Event 'updated' kini memiliki logika yang lebih canggih
+        // Event untuk data DIUBAH (disederhanakan)
         static::updated(function (Model $model) {
-            $changes = [];
-            
-            // Loop melalui setiap atribut yang berubah
-            foreach ($model->getDirty() as $attribute => $newValue) {
-                // Jangan catat perubahan pada kolom 'updated_at'
-                if ($attribute === 'updated_at') {
-                    continue;
-                }
-
-                $originalValue = $model->getOriginal($attribute);
-                // Tambahkan detail perubahan ke dalam array
-                $changes[] = "kolom '{$attribute}' dari '{$originalValue}' menjadi '{$newValue}'";
-            }
-
-            // Hanya buat log jika ada perubahan yang signifikan
-            if (count($changes) > 0) {
-                $description = "memperbarui " . implode(', ', $changes);
-                self::logActivity($model, $description);
-            }
+            static::logActivity($model, 'memperbarui');
         });
     }
 
     /**
-     * Fungsi untuk mencatat log ke database.
+     * Fungsi utama untuk mencatat log ke database.
      *
-     * @param Model $model Model yang sedang diproses
-     * @param string $action Deskripsi aksi yang dilakukan
+     * @param Model $model Model yang sedang diproses.
+     * @param string $action Deskripsi aksi (cth: 'membuat', 'memperbarui', 'menghapus').
      */
     protected static function logActivity(Model $model, string $action)
     {
         if (!Auth::check()) {
             return;
         }
+        
+        // Dapatkan deskripsi subjek dari metode custom di model, atau gunakan fallback.
+        $subject = static::getLogSubject($model);
+
+        // Contoh: "Admin telah membuat data Gaji bulan Juni untuk Budi Santoso"
+        $description = sprintf(
+            '%s telah %s %s',
+            Auth::user()->name,
+            $action,
+            $subject
+        );
 
         ActivityLog::create([
             'user_id'       => Auth::id(),
-            'activity'      => self::getActivityDescription($model, $action),
+            'activity'      => $description,
             'activity_date' => now(),
         ]);
     }
-
+    
     /**
-     * Membuat deskripsi log yang lengkap dan informatif.
+     * Mendapatkan deskripsi subjek log.
+     * Prioritas:
+     * 1. Metode getLogSubjectDescription() pada model.
+     * 2. Kolom 'name' atau 'title' pada model.
+     * 3. Nama model dan ID-nya.
      *
      * @param Model $model
-     * @param string $action
      * @return string
      */
-    protected static function getActivityDescription(Model $model, string $action): string
+    protected static function getLogSubject(Model $model): string
     {
-        $modelName = strtolower(class_basename($model));
-        $userName = Auth::user()->name ?? 'Sistem';
-        
-        $identifiableName = $model->name ?? $model->title ?? $model->id;
+        // OPSI 1: Jika model memiliki metode khusus untuk deskripsi log
+        if (method_exists($model, 'getLogSubjectDescription')) {
+            return $model->getLogSubjectDescription();
+        }
 
-        // Contoh: "Admin telah memperbarui data karyawan: John Doe. Mengubah kolom 'status' dari 'active' ke 'inactive'"
-        return "{$userName} telah {$action} pada data {$modelName} '{$identifiableName}'.";
+        $modelName = strtolower(class_basename($model));
+        
+        // OPSI 2 (Fallback): Gunakan nama/judul jika ada
+        $identifiableName = $model->name ?? $model->title ?? null;
+        if ($identifiableName) {
+            return "data {$modelName} \"{$identifiableName}\"";
+        }
+        
+        // OPSI 3 (Fallback Terakhir): Gunakan ID
+        return "data {$modelName} dengan ID {$model->id}";
     }
 }

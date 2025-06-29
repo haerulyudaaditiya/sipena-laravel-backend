@@ -87,11 +87,11 @@ class LeaveRequestController extends Controller
                 Log::info('FCM Response: ' . $response->body());
             }
 
-            return redirect()->route('leave_requests.index')->with('success', "Pengajuan cuti berhasil divalidasi.");
+            return redirect()->route('leave-requests.index')->with('success', "Pengajuan cuti berhasil divalidasi.");
         } catch (\Exception $e) {
             // Catat juga error jika ada pengecualian
             Log::error('FCM Send Exception: ' . $e->getMessage());
-            return redirect()->route('leave_requests.index')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            return redirect()->route('leave-requests.index')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 

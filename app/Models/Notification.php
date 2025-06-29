@@ -36,4 +36,19 @@ class Notification extends Model
             $model->id = (string) Str::uuid();
         });
     }
+
+    public function getLogSubjectDescription(): string
+    {
+        // Ambil nama karyawan dari relasi.
+        $employeeName = $this->employee->name ?? 'karyawan tidak dikenal';
+
+        // Ambil judul notifikasi.
+        $notificationTitle = $this->title;
+
+        return sprintf(
+            'notifikasi "%s" untuk karyawan "%s"',
+            $notificationTitle,
+            $employeeName
+        );
+    }
 }

@@ -24,28 +24,32 @@
                     <h3 class="card-title">Daftar Aktivitas Terbaru</h3>
                 </div>
                 <div class="card-body">
-                    <table class="table table-bordered table-hover">
-                        <thead>
-                            <tr>
-                                <th style="width: 200px;">Waktu</th>
-                                <th style="width: 200px;">Pengguna</th>
-                                <th>Aktivitas</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($activityLogs as $log)
+                    {{-- PERBAIKAN 1: Bungkus tabel dengan div ini --}}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead>
                                 <tr>
-                                    <td>{{ \Carbon\Carbon::parse($log->activity_date)->diffForHumans() }} <br> <small>{{ $log->activity_date }}</small></td>
-                                    <td>{{ $log->user->name ?? 'User Dihapus' }}</td>
-                                    <td>{{ $log->activity }}</td>
+                                    <th style="width: 15%;">Waktu</th>
+                                    <th style="width: 15%;">Pengguna</th>
+                                    <th style="width: 70%;">Aktivitas</th>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="3" class="text-center">Tidak ada aktivitas yang tercatat.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @forelse ($activityLogs as $log)
+                                    <tr>
+                                        <td>{{ \Carbon\Carbon::parse($log->activity_date)->diffForHumans() }} <br> <small>{{ $log->activity_date }}</small></td>
+                                        <td>{{ $log->user->name ?? 'User Dihapus' }}</td>
+                                        {{-- Kita berikan class khusus di sini agar mudah ditarget oleh CSS --}}
+                                        <td class="activity-cell">{{ $log->activity }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="3" class="text-center">Tidak ada aktivitas yang tercatat.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 <div class="card-footer clearfix">
                     <ul class="pagination pagination-sm m-0 float-right">
@@ -59,6 +63,19 @@
 
 @push('styles')
     <style>
+        /* PERBAIKAN 2: Tambahkan CSS ini */
+        .activity-cell {
+            word-wrap: break-word; /* Untuk browser lama */
+            overflow-wrap: break-word; /* Standar modern, memaksa teks turun */
+            word-break: break-all; /* Alternatif agresif jika teks sangat panjang tanpa spasi */
+            white-space: normal !important; /* Pastikan white-space kembali normal */
+        }
+
+        .table {
+            table-layout: fixed; /* Memaksa tabel mengikuti lebar kolom yang ditentukan */
+            width: 100% !important;
+        }
+
         .pagination {
             margin: 0;
         }

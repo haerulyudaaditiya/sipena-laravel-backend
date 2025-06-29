@@ -29,6 +29,11 @@ class Attendance extends Model
         'status'
     ];
 
+    protected $casts = [
+        'check_in' => 'datetime',
+        'check_out' => 'datetime',
+    ];
+
     public function employee()
     {
         return $this->belongsTo(Employee::class, 'employee_id');
@@ -41,5 +46,21 @@ class Attendance extends Model
         static::creating(function ($model) {
             $model->id = (string) Str::uuid();
         });
+    }
+
+    public function getLogSubjectDescription(): string
+    {
+        // Pastikan relasi employee sudah di-load untuk menghindari query tambahan jika memungkinkan.
+        $employeeName = $this->employee->name ?? 'karyawan tidak dikenal';
+
+        // Format tanggal absensi agar mudah dibaca.
+        // Asumsi 'check_in' selalu ada saat record dibuat.
+        $date = $this->check_in->format('d F Y');
+
+        return sprintf(
+            'data absensi untuk karyawan "%s" pada tanggal %s',
+            $employeeName,
+            $date
+        );
     }
 }

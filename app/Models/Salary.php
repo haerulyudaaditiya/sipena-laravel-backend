@@ -35,4 +35,19 @@ class Salary extends Model
             $model->id = (string) Str::uuid();
         });
     }
+
+    public function getLogSubjectDescription(): string
+    {
+        // Ambil nama karyawan dari relasi.
+        $employeeName = $this->employee->name ?? 'karyawan tidak dikenal';
+
+        // Format tanggal gaji menjadi "Bulan Tahun" (contoh: Juni 2025).
+        $salaryPeriod = \Carbon\Carbon::parse($this->salary_date)->format('F Y');
+
+        return sprintf(
+            'data gaji untuk karyawan "%s" pada periode %s',
+            $employeeName,
+            $salaryPeriod
+        );
+    }
 }

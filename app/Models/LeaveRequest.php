@@ -42,8 +42,23 @@ class LeaveRequest extends Model
             // Hapus semua notifikasi yang terkait dengan pengajuan cuti ini.
             // Ia akan mencari di tabel notifications di mana 'related_model' dan 'related_id' cocok.
             Notification::where('related_model', self::class)
-                        ->where('related_id', $leaveRequest->id)
-                        ->delete();
+                ->where('related_id', $leaveRequest->id)
+                ->delete();
         });
+    }
+
+    public function getLogSubjectDescription(): string
+    {
+        // Ambil nama karyawan dari relasi, dengan fallback jika tidak ada.
+        $employeeName = $this->employee->name ?? 'karyawan tidak dikenal';
+
+        // Ambil jenis cuti dari kolom 'type'.
+        $leaveType = $this->type;
+
+        return sprintf(
+            'pengajuan cuti tipe "%s" untuk karyawan "%s"',
+            $leaveType,
+            $employeeName
+        );
     }
 }
