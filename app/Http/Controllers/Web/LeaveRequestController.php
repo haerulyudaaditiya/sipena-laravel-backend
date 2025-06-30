@@ -15,14 +15,25 @@ class LeaveRequestController extends Controller
     /**
      * Menampilkan halaman utama manajemen cuti dengan semua pengajuan.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Ambil semua data cuti, eager load relasi 'employee' untuk efisiensi
-        // Urutkan berdasarkan status 'pending' terlebih dahulu, lalu yang terbaru
-        $leaveRequests = LeaveRequest::with('employee')
-            ->orderByRaw("FIELD(status, 'pending', 'approved', 'rejected')")
+        // Mulai query dasar dengan eager loading
+        $query = LeaveRequest::with('employee');
+
+        // Terapkan filter berdasarkan status jika ada
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Terapkan filter berdasarkan rentang tanggal jika keduanya diisi
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('start_date', [$request->start_date, $request->end_date]);
+        }
+
+        // Urutkan data: pending di atas, lalu yang terbaru
+        $leaveRequests = $query->orderByRaw("FIELD(status, 'pending', 'approved', 'rejected')")
             ->latest('created_at')
-            ->paginate(20); // Menggunakan paginate untuk performa lebih baik
+            ->get();
 
         return view('leave-requests.index', compact('leaveRequests'));
     }

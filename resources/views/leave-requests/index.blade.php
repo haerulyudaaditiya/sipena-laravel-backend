@@ -32,7 +32,33 @@
                             <h3 class="card-title">Daftar Pengajuan Cuti Karyawan</h3>
                         </div>
                         <div class="card-body">
-                            <table id="example1" class="table table-bordered table-striped">
+                            <form action="{{ route('leave-requests.index') }}" method="GET" class="form-inline">
+                                <div class="input-group input-group-sm" style="width: 500px;">
+                                    <input type="date" name="start_date" class="form-control" title="Tanggal Mulai"
+                                        value="{{ request('start_date') }}">
+                                    <input type="date" name="end_date" class="form-control ml-2" title="Tanggal Selesai"
+                                        value="{{ request('end_date') }}">
+                                    <select name="status" class="form-control ml-2">
+                                        <option value="">Semua Status</option>
+                                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>
+                                            Pending</option>
+                                        <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>
+                                            Disetujui</option>
+                                        <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>
+                                            Ditolak</option>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="submit" class="btn btn-default">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <a href="{{ route('leave-requests.index') }}" class="btn btn-sm btn-secondary ml-2"
+                                    title="Reset Filter">
+                                    Reset
+                                </a>
+                            </form>
+                            <table id="leave-request-table" class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
                                         <th>No</th>
@@ -71,7 +97,8 @@
                                                         Tidak Diketahui
                                                 @endswitch
                                             </td>
-                                            <td>{{ \Carbon\Carbon::parse($leaveRequest->start_date)->format('d M Y') }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($leaveRequest->start_date)->format('d M Y') }}
+                                            </td>
                                             <td>{{ \Carbon\Carbon::parse($leaveRequest->end_date)->format('d M Y') }}</td>
                                             <td>
                                                 @if ($leaveRequest->status == 'pending')
@@ -136,15 +163,19 @@
                                     @case('annual')
                                         Cuti Tahunan
                                     @break
+
                                     @case('sick')
                                         Izin Sakit
                                     @break
+
                                     @case('personal')
                                         Keperluan Pribadi
                                     @break
+
                                     @case('other')
                                         Lainnya
                                     @break
+
                                     @default
                                         Tidak Diketahui
                                 @endswitch
@@ -240,3 +271,15 @@
 @endsection
 
 @include('layouts.admin.alert')
+
+@push('scripts')
+    <script>
+        $(function() {
+            $("#leave-request-table").DataTable({
+                "responsive": true,
+                "lengthChange": false,
+                "autoWidth": false,
+            });
+        });
+    </script>
+@endpush
