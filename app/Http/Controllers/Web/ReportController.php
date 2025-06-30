@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Web;
 
-use App\Exports\AttendanceReport;
+use Carbon\Carbon;
 use App\Exports\LeaveReport;
-use App\Exports\SalaryReport;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Exports\SalaryReport;
+use App\Exports\AttendanceReport;
+use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
@@ -61,7 +62,7 @@ class ReportController extends Controller
             'export_type' => 'required|in:excel,pdf',
         ]);
 
-        $dateObj = \DateTime::createFromFormat('!m', $request->month);
+        $dateObj = Carbon::createFromFormat('!m', $request->month);
         $monthName = $dateObj->format('F');
         $fileName = 'laporan-gaji-' . $monthName . '-' . $request->year;
         $report = new SalaryReport($request->month, $request->year);

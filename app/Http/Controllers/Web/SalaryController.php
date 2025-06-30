@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web;
 
+use Carbon\Carbon;
 use App\Models\Salary;
 use App\Models\Employee;
 use App\Models\Notification;
@@ -17,9 +18,25 @@ class SalaryController extends Controller
     /**
      * Menampilkan daftar gaji.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $salaries = Salary::with('employee')->latest('salary_date')->paginate(20);
+        // Mulai query dasar
+        $query = Salary::with('employee')->latest('salary_date');
+
+        // Terapkan filter berdasarkan tahun jika ada
+        if ($request->filled('year')) {
+            $query->whereYear('salary_date', $request->year);
+        }
+
+        // Terapkan filter berdasarkan bulan jika ada
+        if ($request->filled('month')) {
+            $query->whereMonth('salary_date', $request->month);
+        }
+        
+        // Ambil data dengan paginasi
+        $salaries = $query->get();
+
+        // Ambil data karyawan untuk form tambah
         $employees = Employee::orderBy('name')->get();
         
         return view('salaries.index', compact('salaries', 'employees'));
@@ -39,6 +56,23 @@ class SalaryController extends Controller
             'bonus' => 'nullable|numeric|min:0',
         ]);
 
+        // --- AWAL LOGIKA VALIDASI DUPLIKAT ---
+        $salaryDate = Carbon::parse($request->salary_date);
+        $month = $salaryDate->month;
+        $year = $salaryDate->year;
+
+        $existingSalary = Salary::where('employee_id', $request->employee_id)
+            ->whereYear('salary_date', $year)
+            ->whereMonth('salary_date', $month)
+            ->first();
+
+        if ($existingSalary) {
+            // Jika sudah ada, kembalikan dengan pesan error
+            return redirect()->back()
+                ->with('error', 'Gagal menambahkan. Data gaji untuk karyawan ini pada periode tersebut sudah ada.')
+                ->withInput(); // Mengembalikan input sebelumnya agar form tidak kosong
+        }
+
         // ... (logika cek existing salary Anda)
 
         $salary = Salary::create($request->all());
@@ -46,10 +80,10 @@ class SalaryController extends Controller
         // --- AWAL LOGIKA PUSH NOTIFICATION ---
         try {
             // 1. Buat notifikasi di database
-            $periode = \Carbon\Carbon::parse($salary->salary_date)->format('F Y');
+            $periode = Carbon::parse($salary->salary_date)->format('F Y');
             $title = "Slip Gaji Periode $periode Telah Terbit";
             $message = "Rincian slip gaji Anda untuk periode $periode sudah tersedia. Silakan cek di aplikasi.";
-            
+
             Notification::create([
                 'employee_id'    => $salary->employee_id,
                 'title'          => $title,
@@ -61,7 +95,7 @@ class SalaryController extends Controller
 
             // 2. Kirim push notification ke perangkat
             $employeeUser = User::where('employee_id', $salary->employee_id)->first();
-            
+
             if ($employeeUser && $employeeUser->fcm_token) {
                 $serverKey = env('FCM_SERVER_KEY');
 

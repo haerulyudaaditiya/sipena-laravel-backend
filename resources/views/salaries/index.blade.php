@@ -27,13 +27,40 @@
                         <div class="card-header">
                             <h3 class="card-title">Daftar Gaji Karyawan</h3>
                             <div class="card-tools">
-                                <button class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addSalaryModal">
+                                <button class="btn btn-primary btn-sm float-right" data-toggle="modal"
+                                    data-target="#addSalaryModal">
                                     Tambah Data Gaji
                                 </button>
                             </div>
                         </div>
                         <div class="card-body">
-                            <table id="example1" class="table table-bordered table-striped">
+                            <form action="{{ route('salaries.index') }}" method="GET" class="form-inline">
+                                <div class="input-group input-group-sm" style="width: 400px;">
+                                    <select name="month" class="form-control">
+                                        <option value="">Semua Bulan</option>
+                                        @for ($m = 1; $m <= 12; $m++)
+                                            <option value="{{ $m }}"
+                                                {{ request('month') == $m ? 'selected' : '' }}>
+                                                {{ date('F', mktime(0, 0, 0, $m, 1, date('Y'))) }}
+                                            </option>
+                                        @endfor
+                                    </select>
+                                    <select name="year" class="form-control ml-2">
+                                        <option value="">Semua Tahun</option>
+                                        @for ($y = date('Y'); $y >= date('Y') - 5; $y--)
+                                            <option value="{{ $y }}"
+                                                {{ request('year') == $y ? 'selected' : '' }}>{{ $y }}</option>
+                                        @endfor
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="submit" class="btn btn-default">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <a href="{{ route('salaries.index') }}" class="btn btn-sm btn-secondary ml-2">Reset</a>
+                            </form>
+                            <table id="salary-table" class="table table-bordered table-striped">
                                 <thead>
                                     {{-- DIUBAH: Kolom Tabel disesuaikan untuk data gaji --}}
                                     <tr>
@@ -57,7 +84,8 @@
                                             <td>Rp {{ number_format($salary->basic_salary, 0, ',', '.') }}</td>
                                             {{-- DITAMBAHKAN: Kalkulasi untuk total penerimaan --}}
                                             @php
-                                                $totalPenerimaan = $salary->basic_salary + $salary->allowances + $salary->bonus;
+                                                $totalPenerimaan =
+                                                    $salary->basic_salary + $salary->allowances + $salary->bonus;
                                                 $gajiBersih = $totalPenerimaan - $salary->deductions;
                                             @endphp
                                             <td>Rp {{ number_format($totalPenerimaan, 0, ',', '.') }}</td>
@@ -73,8 +101,8 @@
                                                     <i class="fas fa-trash-alt"></i>
                                                 </button>
                                                 <form id="delete-form-{{ $salary->id }}"
-                                                    action="{{ route('salaries.destroy', $salary->id) }}"
-                                                    method="POST" style="display: none;">
+                                                    action="{{ route('salaries.destroy', $salary->id) }}" method="POST"
+                                                    style="display: none;">
                                                     @csrf
                                                     @method('DELETE')
                                                 </form>
@@ -83,6 +111,9 @@
                                     @endforeach
                                 </tbody>
                             </table>
+                            {{-- <div class="mt-3">
+                                {{ $salaries->appends(request()->query())->links() }}
+                            </div> --}}
                         </div>
                     </div>
                 </div>
@@ -90,7 +121,8 @@
         </div>
     </section>
 
-    <div class="modal fade" id="addSalaryModal" tabindex="-1" role="dialog" aria-labelledby="addSalaryModalLabel" aria-hidden="true">
+    <div class="modal fade" id="addSalaryModal" tabindex="-1" role="dialog" aria-labelledby="addSalaryModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <form action="{{ route('salaries.store') }}" method="POST">
                 @csrf
@@ -106,32 +138,39 @@
                             <label>Karyawan <span class="text-danger">*</span></label>
                             <select name="employee_id" class="form-control" required>
                                 <option value="" disabled selected>Pilih Karyawan</option>
-                                @foreach($employees as $employee)
-                                    <option value="{{ $employee->id }}">{{ $employee->name }} ({{ $employee->employee_id }})</option>
+                                @foreach ($employees as $employee)
+                                    <option value="{{ $employee->id }}">{{ $employee->name }}
+                                        ({{ $employee->employee_id }})
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Periode Gaji (Pilih tanggal berapapun di bulan yang diinginkan) <span class="text-danger">*</span></label>
+                            <label>Periode Gaji (Pilih tanggal berapapun di bulan yang diinginkan) <span
+                                    class="text-danger">*</span></label>
                             <input type="date" name="salary_date" class="form-control" required>
                         </div>
                         <hr>
                         <div class="row">
                             <div class="col-md-6 form-group">
                                 <label>Gaji Pokok <span class="text-danger">*</span></label>
-                                <input type="number" name="basic_salary" class="form-control" placeholder="Contoh: 5000000" required>
+                                <input type="number" name="basic_salary" class="form-control" placeholder="Contoh: 5000000"
+                                    required>
                             </div>
                             <div class="col-md-6 form-group">
                                 <label>Tunjangan</label>
-                                <input type="number" name="allowances" class="form-control" placeholder="Contoh: 500000" value="0">
+                                <input type="number" name="allowances" class="form-control" placeholder="Contoh: 500000"
+                                    value="0">
                             </div>
                             <div class="col-md-6 form-group">
                                 <label>Bonus</label>
-                                <input type="number" name="bonus" class="form-control" placeholder="Contoh: 250000" value="0">
+                                <input type="number" name="bonus" class="form-control" placeholder="Contoh: 250000"
+                                    value="0">
                             </div>
                             <div class="col-md-6 form-group">
                                 <label>Potongan</label>
-                                <input type="number" name="deductions" class="form-control" placeholder="Contoh: 100000" value="0">
+                                <input type="number" name="deductions" class="form-control"
+                                    placeholder="Contoh: 100000" value="0">
                             </div>
                         </div>
                     </div>
@@ -145,14 +184,16 @@
     </div>
 
     @foreach ($salaries as $salary)
-        <div class="modal fade" id="editSalaryModal{{ $salary->id }}" tabindex="-1" role="dialog" aria-labelledby="editSalaryModalLabel{{ $salary->id }}" aria-hidden="true">
+        <div class="modal fade" id="editSalaryModal{{ $salary->id }}" tabindex="-1" role="dialog"
+            aria-labelledby="editSalaryModalLabel{{ $salary->id }}" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
                 <form action="{{ route('salaries.update', $salary->id) }}" method="POST">
                     @csrf
                     @method('PUT')
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="editSalaryModalLabel{{ $salary->id }}">Edit Gaji: {{ $salary->employee->name }}</h5>
+                            <h5 class="modal-title" id="editSalaryModalLabel{{ $salary->id }}">Edit Gaji:
+                                {{ $salary->employee->name }}</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -160,29 +201,35 @@
                         <div class="modal-body">
                             <div class="form-group">
                                 <label>Karyawan</label>
-                                <input type="text" class="form-control" value="{{ $salary->employee->name }}" disabled>
+                                <input type="text" class="form-control" value="{{ $salary->employee->name }}"
+                                    disabled>
                             </div>
-                             <div class="form-group">
+                            <div class="form-group">
                                 <label>Periode Gaji <span class="text-danger">*</span></label>
-                                <input type="date" name="salary_date" class="form-control" value="{{ $salary->salary_date }}" required>
+                                <input type="date" name="salary_date" class="form-control"
+                                    value="{{ $salary->salary_date }}" required>
                             </div>
                             <hr>
                             <div class="row">
                                 <div class="col-md-6 form-group">
                                     <label>Gaji Pokok <span class="text-danger">*</span></label>
-                                    <input type="number" name="basic_salary" class="form-control" value="{{ $salary->basic_salary }}" required>
+                                    <input type="number" name="basic_salary" class="form-control"
+                                        value="{{ $salary->basic_salary }}" required>
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label>Tunjangan</label>
-                                    <input type="number" name="allowances" class="form-control" value="{{ $salary->allowances }}">
+                                    <input type="number" name="allowances" class="form-control"
+                                        value="{{ $salary->allowances }}">
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label>Bonus</label>
-                                    <input type="number" name="bonus" class="form-control" value="{{ $salary->bonus }}">
+                                    <input type="number" name="bonus" class="form-control"
+                                        value="{{ $salary->bonus }}">
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label>Potongan</label>
-                                    <input type="number" name="deductions" class="form-control" value="{{ $salary->deductions }}">
+                                    <input type="number" name="deductions" class="form-control"
+                                        value="{{ $salary->deductions }}">
                                 </div>
                             </div>
                         </div>
@@ -200,3 +247,15 @@
 @endsection
 
 @include('layouts.admin.alert')
+
+@push('scripts')
+    <script>
+        $(function() {
+            $("#salary-table").DataTable({
+                "responsive": true,
+                "lengthChange": false,
+                "autoWidth": false,
+            });
+        });
+    </script>
+@endpush
