@@ -26,7 +26,34 @@
                             <h3 class="card-title">Daftar Kehadiran Karyawan</h3>
                         </div>
                         <div class="card-body">
-                            <table id="example1" class="table table-bordered table-striped">
+                            <form action="{{ route('attendances.index') }}" method="GET" class="form-inline">
+                                <div class="input-group input-group-sm" style="width: 500px;">
+                                    <input type="date" name="start_date" class="form-control" title="Tanggal Mulai"
+                                        value="{{ request('start_date') }}">
+                                    <input type="date" name="end_date" class="form-control ml-2" title="Tanggal Selesai"
+                                        value="{{ request('end_date') }}">
+
+                                    {{-- Pilihan Status untuk Kehadiran --}}
+                                    <select name="status" class="form-control ml-2">
+                                        <option value="">Semua Status</option>
+                                        <option value="Tepat Waktu"
+                                            {{ request('status') == 'Tepat Waktu' ? 'selected' : '' }}>Tepat Waktu</option>
+                                        <option value="Terlambat" {{ request('status') == 'Terlambat' ? 'selected' : '' }}>
+                                            Terlambat</option>
+                                    </select>
+
+                                    <div class="input-group-append">
+                                        <button type="submit" class="btn btn-default">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <a href="{{ route('attendances.index') }}" class="btn btn-sm btn-secondary ml-2"
+                                    title="Reset Filter">
+                                    Reset
+                                </a>
+                            </form>
+                            <table id="attendances-table" class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
                                         <th>No</th>
@@ -186,12 +213,15 @@
                                 {{-- DIUBAH: Preview Foto Check-in --}}
                                 <div class="col-md-6 text-center">
                                     <label>Foto Masuk</label>
-                                    @if($attendance->check_in_photo_url)
-                                        <a href="{{ $attendance->check_in_photo_url }}" target="_blank" title="Lihat ukuran penuh">
-                                            <img src="{{ $attendance->check_in_photo_url }}" alt="Foto Check-in" style="width: 100%; height: 200px; object-fit: cover; border-radius: 5px; border: 1px solid #ddd;">
+                                    @if ($attendance->check_in_photo_url)
+                                        <a href="{{ $attendance->check_in_photo_url }}" target="_blank"
+                                            title="Lihat ukuran penuh">
+                                            <img src="{{ $attendance->check_in_photo_url }}" alt="Foto Check-in"
+                                                style="width: 100%; height: 200px; object-fit: cover; border-radius: 5px; border: 1px solid #ddd;">
                                         </a>
                                     @else
-                                        <div class="d-flex align-items-center justify-content-center bg-light" style="width: 100%; height: 200px; border-radius: 5px;">
+                                        <div class="d-flex align-items-center justify-content-center bg-light"
+                                            style="width: 100%; height: 200px; border-radius: 5px;">
                                             <span class="text-muted">Tidak ada foto</span>
                                         </div>
                                     @endif
@@ -199,12 +229,15 @@
                                 {{-- DIUBAH: Preview Foto Check-out --}}
                                 <div class="col-md-6 text-center">
                                     <label>Foto Keluar</label>
-                                     @if($attendance->check_out_photo_url)
-                                        <a href="{{ $attendance->check_out_photo_url }}" target="_blank" title="Lihat ukuran penuh">
-                                            <img src="{{ $attendance->check_out_photo_url }}" alt="Foto Check-out" style="width: 100%; height: 200px; object-fit: cover; border-radius: 5px; border: 1px solid #ddd;">
+                                    @if ($attendance->check_out_photo_url)
+                                        <a href="{{ $attendance->check_out_photo_url }}" target="_blank"
+                                            title="Lihat ukuran penuh">
+                                            <img src="{{ $attendance->check_out_photo_url }}" alt="Foto Check-out"
+                                                style="width: 100%; height: 200px; object-fit: cover; border-radius: 5px; border: 1px solid #ddd;">
                                         </a>
                                     @else
-                                        <div class="d-flex align-items-center justify-content-center bg-light" style="width: 100%; height: 200px; border-radius: 5px;">
+                                        <div class="d-flex align-items-center justify-content-center bg-light"
+                                            style="width: 100%; height: 200px; border-radius: 5px;">
                                             <span class="text-muted">Belum ada foto</span>
                                         </div>
                                     @endif
@@ -318,6 +351,16 @@
             if (mapContainer.length > 0) {
                 mapContainer.data('map-init', false);
             }
+        });
+    </script>
+
+    <script>
+        $(function() {
+            $("#attendances-table").DataTable({
+                "responsive": true,
+                "lengthChange": false,
+                "autoWidth": false,
+            });
         });
     </script>
 @endpush

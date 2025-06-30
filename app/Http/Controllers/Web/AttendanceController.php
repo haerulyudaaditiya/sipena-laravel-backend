@@ -8,9 +8,23 @@ use App\Http\Controllers\Controller;
 
 class AttendanceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $attendances = Attendance::with('employee')->latest('check_in')->get();
+        // Mulai query dasar
+        $query = Attendance::with('employee')->latest('check_in');
+
+        // Terapkan filter berdasarkan status jika ada
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Terapkan filter berdasarkan rentang tanggal jika keduanya diisi
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('check_in', [$request->start_date, $request->end_date]);
+        }
+
+        // Ambil data dengan paginasi
+        $attendances = $query->get();
 
         return view('attendances.index', compact('attendances'));
     }
