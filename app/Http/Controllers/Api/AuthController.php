@@ -25,7 +25,7 @@ class AuthController extends Controller
         // Pastikan user ditemukan dan password cocok
         if (!$user || !Hash::check($validated['password'], $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
+                'email' => ['Kredensial yang diberikan salah.'],
             ]);
         }
 
@@ -33,14 +33,14 @@ class AuthController extends Controller
         $employee = $user->employee; // Akses relasi employee
         if (!$employee || $employee->status !== 'active') {
             throw ValidationException::withMessages([
-                'status' => ['Your account is not active. Please contact your administrator.'],
+                'status' => ['Akun Anda tidak aktif. Silakan hubungi administrator Anda.'],
             ]);
         }
 
         // Pastikan role user adalah 'employee'
         if ($user->role !== 'employee') {
             throw ValidationException::withMessages([
-                'role' => ['Only employees are allowed to log in.'],
+                'role' => ['Hanya karyawan yang diizinkan masuk.'],
             ]);
         }
 
@@ -48,7 +48,7 @@ class AuthController extends Controller
         $token = $user->createToken('IonicApp')->plainTextToken;
 
         return response()->json([
-            'message' => 'Login successful',
+            'message' => 'Login berhasil',
             'token' => $token,
             'user' => $user
         ]);
@@ -64,7 +64,7 @@ class AuthController extends Controller
         });
 
         return response()->json([
-            'message' => 'Logout successful'
+            'message' => 'Logout berhasil'
         ]);
     }
 
@@ -82,7 +82,7 @@ class AuthController extends Controller
         // Cek apakah password lama sesuai dengan yang ada di database
         if (!Hash::check($validated['current_password'], $user->password)) {
             throw ValidationException::withMessages([
-                'current_password' => ['The current password is incorrect.'],
+                'current_password' => ['Kata sandi saat ini salah.'],
             ]);
         }
 
@@ -91,7 +91,7 @@ class AuthController extends Controller
         $user->save();
 
         return response()->json([
-            'message' => 'Password changed successfully',
+            'message' => 'Kata sandi berhasil diubah',
         ]);
     }
 }

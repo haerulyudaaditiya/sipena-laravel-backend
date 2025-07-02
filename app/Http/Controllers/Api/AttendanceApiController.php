@@ -65,13 +65,18 @@ class AttendanceApiController extends Controller
                     }
                 }
 
-                // 2. Validasi Keterlambatan
+                // 2. Validasi Waktu Presensi
                 if ($settings->check_in_time) {
                     $officeCheckInTime = Carbon::parse($settings->check_in_time);
 
-                    // DIHAPUS: Validasi waktu mulai absen tidak lagi digunakan
-                    // $earliestCheckInTime = $officeCheckInTime->copy()->subMinutes($settings->check_in_start_margin);
-                    // if ($checkInTime->isBefore($earliestCheckInTime)) { ... }
+                    // DITAMBAHKAN: Validasi waktu mulai absen
+                    $earliestCheckInTime = $officeCheckInTime->copy()->subMinutes($settings->check_in_start_margin);
+                    if ($checkInTime->isBefore($earliestCheckInTime)) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Anda belum bisa melakukan presensi. Presensi bisa dilakukan mulai pukul ' . $earliestCheckInTime->format('H:i') . '.'
+                        ], 400);
+                    }
 
                     // Cek keterlambatan (logika ini tetap ada)
                     if ($checkInTime->gt($officeCheckInTime->addMinutes($settings->late_tolerance))) {

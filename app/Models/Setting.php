@@ -16,13 +16,13 @@ class Setting extends Model
         'presence_radius',
         'check_in_time',
         'check_out_time',
-        'late_tolerance',
+        'check_in_start_margin',
         'annual_leave_quota',
     ];
 
     protected $casts = [
         'presence_radius' => 'integer',
-        'late_tolerance' => 'integer',
+        'check_in_start_margin' => 'integer',
         'annual_leave_quota' => 'integer',
     ];
 }

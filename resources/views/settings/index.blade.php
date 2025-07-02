@@ -124,13 +124,16 @@
                                     @enderror
                                 </div>
                                 <div class="form-group">
-                                    <label>Toleransi Keterlambatan (menit)</label>
-                                    <input type="number" name="late_tolerance"
-                                        class="form-control @error('late_tolerance') is-invalid @enderror"
-                                        value="{{ old('late_tolerance', $settings->late_tolerance) }}" required>
-                                    @error('late_tolerance')
+                                    <label>Waktu Mulai Absen (Menit Sebelum Jam Masuk)</label>
+                                    <input type="number" name="check_in_start_margin"
+                                        class="form-control @error('check_in_start_margin') is-invalid @enderror"
+                                        value="{{ old('check_in_start_margin', $settings->check_in_start_margin) }}"
+                                        required>
+                                    @error('check_in_start_margin')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
+                                    <small class="form-text text-muted">Contoh: Jika jam masuk 08:00 dan diisi 60, maka
+                                        karyawan bisa mulai absen dari pukul 07:00.</small>
                                 </div>
                                 <div class="form-group">
                                     <label>Kuota Cuti Tahunan (hari)</label>
@@ -144,11 +147,11 @@
                             </div>
                         </div>
                         <div class="row">
-                         <div class="col-12 mb-3">
-                            <button type="submit" class="btn btn-success float-right">
-                                <i class="fas fa-save mr-1"></i> Simpan Pengaturan
-                            </button>
-                        </div>
+                            <div class="col-12 mb-3">
+                                <button type="submit" class="btn btn-success float-right">
+                                    <i class="fas fa-save mr-1"></i> Simpan Pengaturan
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

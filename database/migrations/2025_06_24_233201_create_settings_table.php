@@ -18,7 +18,7 @@ return new class extends Migration
             // Jam Kerja
             $table->time('check_in_time')->default('08:00');
             $table->time('check_out_time')->default('16:00');
-            $table->integer('late_tolerance')->default(15); // dalam menit
+            $table->integer('check_in_start_margin')->default(15);
 
             // Kebijakan Cuti
             $table->integer('annual_leave_quota')->default(12); // dalam hari

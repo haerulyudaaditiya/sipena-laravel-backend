@@ -19,12 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [
-        'http://localhost:8100', // Untuk ionic serve di browser
-        'capacitor://localhost', // Origin default untuk aplikasi native Capacitor
-        'http://localhost', // Origin default untuk aplikasi native Capacitor di iOS
-        'https://sipena.anopus.my.id'
-    ],
+    'allowed_origins' => ['*'],
 
 
     'allowed_origins_patterns' => [],

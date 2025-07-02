@@ -15,7 +15,7 @@ class SettingController extends Controller
     {
         // Ambil baris pertama dari tabel settings, atau buat jika belum ada.
         $settings = Setting::firstOrCreate([]);
-        
+
         return view('settings.index', compact('settings'));
     }
 
@@ -32,14 +32,14 @@ class SettingController extends Controller
             'presence_radius' => 'required|integer|min:10',
             'check_in_time' => 'required|date_format:H:i,H:i:s',
             'check_out_time' => 'required|date_format:H:i,H:i:s',
-            'late_tolerance' => 'required|integer|min:0',
+            'check_in_start_margin' => 'required|integer|min:0',
             'annual_leave_quota' => 'required|integer|min:0',
         ]);
         // --- AKHIR PERUBAHAN ---
 
         // Cari pengaturan yang ada, atau buat baru jika tabel kosong.
         $settings = Setting::firstOrCreate([]);
-        
+
         // Update data dengan yang baru dari form.
         $settings->update($request->all());
 
