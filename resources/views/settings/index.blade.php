@@ -1,7 +1,6 @@
 @extends('layouts.admin.admin')
 
 @push('styles')
-    <!-- CSS untuk Leaflet JS (Peta) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <style>
@@ -50,12 +49,18 @@
                             </div>
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <p class="text-muted mb-0">Klik peta atau geser penanda untuk menentukan lokasi.</p>
-                                    <button type="button" class="btn btn-sm btn-info" id="find-my-location">
-                                        Temukan Lokasi Saya
-                                    </button>
+                                    <p class="text-muted mb-0">Klik peta atau geser penanda.</p>
+                                    {{-- DITAMBAHKAN: Wrapper untuk tombol agar rapi --}}
+                                    <div>
+                                        <button type="button" class="btn btn-sm btn-info" id="find-my-location">
+                                            Temukan Lokasi Saya
+                                        </button>
+                                        {{-- DITAMBAHKAN: Tombol untuk menghapus lokasi --}}
+                                        <button type="button" class="btn btn-sm btn-danger" id="clear-location">
+                                            Hapus Lokasi
+                                        </button>
+                                    </div>
                                 </div>
-                                <!-- Container untuk Peta Google Maps -->
                                 <div id="officeMap"
                                     style="height: 310px; width: 100%; border-radius: .25rem; border: 1px solid #ced4da;"
                                     class="mb-3"></div>
@@ -209,6 +214,30 @@
             // Event listener untuk tombol "Temukan Lokasi Saya"
             document.getElementById('find-my-location').addEventListener('click', function() {
                 initGeolocation();
+            });
+
+            // DITAMBAHKAN: Event listener untuk tombol "Hapus Lokasi"
+            document.getElementById('clear-location').addEventListener('click', function() {
+                // Mengosongkan nilai input
+                latInput.value = '';
+                lngInput.value = '';
+
+                // Mengatur ulang posisi peta dan marker ke default (Jakarta)
+                const defaultPosition = { lat: -6.2088, lng: 106.8456 };
+                map.setCenter(defaultPosition);
+                map.setZoom(13);
+                marker.setPosition(defaultPosition);
+
+                // Menampilkan notifikasi bahwa lokasi telah dihapus
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Lokasi Dikosongkan',
+                    text: 'Koordinat lokasi telah dihapus. Silakan pilih lokasi baru atau simpan pengaturan.',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3500
+                });
             });
         }
 
