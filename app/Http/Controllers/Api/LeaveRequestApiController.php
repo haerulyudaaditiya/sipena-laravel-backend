@@ -42,7 +42,7 @@ class LeaveRequestApiController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Validasi gagal',
+                'message' => 'Gagal',
                 'errors' => $validator->errors()
             ], 422);
         }
