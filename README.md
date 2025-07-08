@@ -1,4 +1,3 @@
-````markdown
 # SIPENA - Backend API
 
 **SIPENA (Sistem Informasi Pengelolaan Karyawan)** adalah backend RESTful API untuk aplikasi mobile berbasis Ionic. Proyek ini dibangun menggunakan **Laravel 12** dan berfungsi untuk mengelola data karyawan, presensi, cuti, gaji, dan lain-lain secara terpusat.
@@ -163,5 +162,4 @@ Kontribusi sangat terbuka! Silakan buat issue atau pull request untuk fitur baru
 
 ## 📄 Lisensi
 
-Repositori ini menggunakan lisensi [MIT License](LICENSE).Z
-```
+Repositori ini menggunakan lisensi [MIT License](LICENSE).
